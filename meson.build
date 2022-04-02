@@ -1,4 +1,4 @@
-project('bgfx', ['c', 'cpp'], version: '1.115', default_options: ['cpp_std=c++11'])
+project('bgfx', ['c', 'cpp'], version: '1.115', default_options: ['cpp_std=c++17'])
 
 add_project_arguments('-DBX_CONFIG_DEBUG', language: 'cpp')
 add_project_arguments('-DENABLE_OPT', language: 'cpp')
