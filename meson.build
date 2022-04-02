@@ -22,10 +22,8 @@ if (build_machine.system() == 'darwin')
     # dependencies += cpp.find_library('CoreFoundation')
     # dependencies += dependency('OpenGLES')
     dependencies += dependency('Metal')
-    dependencies += dependency('UIKit')
-    dependencies += dependency('CoreGraphics')
-    dependencies += dependency('QuartzCore')
     dependencies += dependency('IOKit')
+    dependencies += dependency('QuartzCore')
     dependencies += dependency('CoreFoundation')
 endif
 
