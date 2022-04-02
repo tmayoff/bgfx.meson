@@ -45,6 +45,12 @@ jobs:
           sudo apt install -y libgl1-mesa-dev
         if: matrix.os == 'ubuntu-latest'
         
+      - name: Setup Python
+        uses: actions/setup-python@v3.1.0
+      
+      - name: Install meson and ninja
+        run: pip3 install meson ninja
+        
       - uses: BSFishy/meson-build@v1.0.3
         with:
           action: build
