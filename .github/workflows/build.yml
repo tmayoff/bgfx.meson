@@ -30,6 +30,11 @@ jobs:
             cc: clang
             cxx: clang++
           - os: macos-latest
+        
+    env:
+      CC: ${{ matrix.cc }}
+      CXX: ${{ matrix.cxx }}
+        
     steps:
       - uses: actions/checkout@v2
         with:
