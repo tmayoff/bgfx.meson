@@ -6,15 +6,28 @@ add_project_arguments('-DENABLE_HLSL', language: 'cpp')
 
 cpp = meson.get_compiler('cpp')
 
-dl = cpp.find_library('dl')
-threads = dependency('threads', required: true)
-x11 = dependency('X11')
-glx = dependency('glx')
+dependencies = []
+dependencies += dependency('threads', required: true)
+if (build_machine.system() == 'linux')
+    dependencies += cpp.find_library('dl')
+    dependencies += dependency('X11')
+    dependencies += dependency('glx')
+endif
+
+if (build_machine.system() == 'darwin')
+    dependencies += dependency('OpenGLES')
+    dependencies += dependency('Metal')
+    dependencies += dependency('UIKit')
+    dependencies += dependency('CoreGraphics')
+    dependencies += dependency('QuartzCore')
+    dependencies += dependency('IOKit')
+    dependencies += dependency('CoreFoundation')
+endif
 
 # bx
 bx_sources = files('bx/src/amalgamated.cpp')
 bx_inc = include_directories('bx/include', 'bx/3rdparty')
-bx = static_library('bx', bx_sources, dependencies: dl, include_directories: bx_inc)
+bx = static_library('bx', bx_sources, dependencies: dependencies, include_directories: bx_inc)
 bx_dep = declare_dependency(include_directories: bx_inc, link_with: bx)
 
 # bimg 3rdparty
@@ -515,7 +528,7 @@ webgpu_dep = declare_dependency(include_directories: 'bgfx/3rdparty/webgpu/inclu
 bgfx_sources = files('bgfx/src/amalgamated.cpp')
 bgfx_inc = include_directories('bgfx/include', 'bgfx/3rdparty', 'bgfx/3rdparty/dxsdk', 'bgfx/3rdparty/khronos')
 
-bgfx = library('bgfx', bgfx_sources, include_directories: bgfx_inc, dependencies: [threads, x11, glx, bx_dep, bimg_dep])
+bgfx = library('bgfx', bgfx_sources, include_directories: bgfx_inc, dependencies: dependencies + [bx_dep, bimg_dep])
 bgfx_dep = declare_dependency(include_directories: bgfx_inc, link_with: bgfx)
 
 # bgfx tools
@@ -530,7 +543,7 @@ shaderc = executable('shaderc', 'bgfx/tools/shaderc/shaderc_glsl.cpp',
                     'bgfx/tools/shaderc/shaderc_pssl.cpp',
                     'bgfx/tools/shaderc/shaderc_spirv.cpp',
                     'bgfx/tools/shaderc/shaderc.cpp',
-                    dependencies: [threads, bx_dep, bgfx_dep, fcpp_dep, glsl_optimizer_dep, glslang_dep, spirv_cross_dep, spirv_tools_dep, webgpu_dep],
+                    dependencies: [bx_dep, bgfx_dep, fcpp_dep, glsl_optimizer_dep, glslang_dep, spirv_cross_dep, spirv_tools_dep, webgpu_dep],
                     cpp_args: ['-D_CRT_SECURE_NO_WARNINGS'])
 
 # texturev = executable('texturev', 'bgfx/tools/texturev/texturev.cpp')
