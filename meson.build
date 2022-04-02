@@ -15,13 +15,18 @@ if (build_machine.system() == 'linux')
 endif
 
 if (build_machine.system() == 'darwin')
-    dependencies += dependency('OpenGLES')
-    dependencies += dependency('Metal')
-    dependencies += dependency('UIKit')
-    dependencies += dependency('CoreGraphics')
-    dependencies += dependency('QuartzCore')
-    dependencies += dependency('IOKit')
-    dependencies += dependency('CoreFoundation')
+    dependencies += cpp.find_library('Cocoa')
+    dependencies += cpp.find_library('Metal')
+    dependencies += cpp.find_library('QuartzCore')
+    dependencies += cpp.find_library('IOKit')
+    dependencies += cpp.find_library('CoreFoundation')
+    # dependencies += dependency('OpenGLES')
+    # dependencies += dependency('Metal')
+    # dependencies += dependency('UIKit')
+    # dependencies += dependency('CoreGraphics')
+    # dependencies += dependency('QuartzCore')
+    # dependencies += dependency('IOKit')
+    # dependencies += dependency('CoreFoundation')
 endif
 
 # bx
