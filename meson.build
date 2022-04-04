@@ -227,7 +227,7 @@ glsl_optimizer = static_library('glsl-optimizer', 'bgfx/3rdparty/glsl-optimizer/
                                link_with: [glcpp, mesa])
 glsl_optimizer_dep = declare_dependency(include_directories: glsl_optimizer_inc, link_with: glsl_optimizer)
 
-glslang = static_library('glslang', 'bgfx/3rdparty/glslang/glslang/GenericCodeGen/CodeGen.cpp',
+glslang_sources = files('bgfx/3rdparty/glslang/glslang/GenericCodeGen/CodeGen.cpp',
                         'bgfx/3rdparty/glslang/glslang/GenericCodeGen/Link.cpp',
                         'bgfx/3rdparty/glslang/glslang/MachineIndependent/Constant.cpp',
                         'bgfx/3rdparty/glslang/glslang/MachineIndependent/InfoSink.cpp',
@@ -275,8 +275,13 @@ glslang = static_library('glslang', 'bgfx/3rdparty/glslang/glslang/GenericCodeGe
                         'bgfx/3rdparty/glslang/SPIRV/SpvPostProcess.cpp',
                         'bgfx/3rdparty/glslang/SPIRV/SPVRemapper.cpp',
                         'bgfx/3rdparty/glslang/SPIRV/SpvTools.cpp',
-                        'bgfx/3rdparty/glslang/OGLCompilersDLL/InitializeDll.cpp',
-                        'bgfx/3rdparty/glslang/glslang/OSDependent/Unix/ossource.cpp',
+                        'bgfx/3rdparty/glslang/OGLCompilersDLL/InitializeDll.cpp')
+if (build_machine.system() == 'windows')
+  glslang_sources += 'bgfx/3rdparty/glslang/glslang/OSDependent/Windows/ossource.cpp'
+else
+  glslang_sources += 'bgfx/3rdparty/glslang/glslang/OSDependent/Unix/ossource.cpp'
+endif
+glslang = static_library('glslang', 
                         include_directories: ['bgfx/3rdparty', 'bgfx/3rdparty/spirv-tools/include', 'bgfx/3rdparty/spirv-tools/source', 'bgfx/3rdparty/glslang', 'bgfx/3rdparty/glslang/glslang/Include', 'bgfx/3rdparty/glslang/glslang/Public'])
 glslang_dep = declare_dependency(include_directories: ['bgfx/3rdparty/spirv-tools/include', 'bgfx/3rdparty/spirv-tools/source', 'bgfx/3rdparty/glslang', 'bgfx/3rdparty/glslang/glslang/Include', 'bgfx/3rdparty/glslang/glslang/Public'], link_with: glslang)
 
