@@ -281,7 +281,7 @@ if (build_machine.system() == 'windows')
 else
   glslang_sources += 'bgfx/3rdparty/glslang/glslang/OSDependent/Unix/ossource.cpp'
 endif
-glslang = static_library('glslang', 
+glslang = static_library('glslang', glslang_sources,
                         include_directories: ['bgfx/3rdparty', 'bgfx/3rdparty/spirv-tools/include', 'bgfx/3rdparty/spirv-tools/source', 'bgfx/3rdparty/glslang', 'bgfx/3rdparty/glslang/glslang/Include', 'bgfx/3rdparty/glslang/glslang/Public'])
 glslang_dep = declare_dependency(include_directories: ['bgfx/3rdparty/spirv-tools/include', 'bgfx/3rdparty/spirv-tools/source', 'bgfx/3rdparty/glslang', 'bgfx/3rdparty/glslang/glslang/Include', 'bgfx/3rdparty/glslang/glslang/Public'], link_with: glslang)
 
