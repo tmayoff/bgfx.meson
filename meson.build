@@ -12,9 +12,9 @@ if (build_machine.system() == 'linux')
     dependencies += cpp.find_library('dl')
     dependencies += dependency('X11')
     dependencies += dependency('glx')
-endif
+elif (build_machine.system() == 'windows')
 
-if (build_machine.system() == 'darwin')
+elif (build_machine.system() == 'darwin')
     # dependencies += cpp.find_library('Cocoa')
     # dependencies += cpp.find_library('Metal')
     # dependencies += cpp.find_library('QuartzCore')
@@ -30,7 +30,7 @@ endif
 
 # bx
 bx_sources = files('bx/src/amalgamated.cpp')
-bx_inc = include_directories('bx/include', 'bx/3rdparty')
+bx_inc = include_directories('bx/include', 'bx/3rdparty', 'bx/include/compat/mingw')
 bx = static_library('bx', bx_sources, dependencies: dependencies, include_directories: bx_inc, 
                    cpp_args: ['-D__STDC_LIMIT_MACROS', '-D__STDC_FORMAT_MACROS', '-D__STDC_CONSTANT_MACROS'])
 bx_dep = declare_dependency(include_directories: bx_inc, link_with: bx)
@@ -522,8 +522,7 @@ spirv_tools = static_library('spirv-tools', 'bgfx/3rdparty/spirv-tools/source/as
                             'bgfx/3rdparty/spirv-tools/source/val/validate_small_type_uses.cpp',
                             'bgfx/3rdparty/spirv-tools/source/val/validate_type.cpp',
                             'bgfx/3rdparty/spirv-tools/source/val/validation_state.cpp',
-                            include_directories: ['bgfx/3rdparty/spirv-headers/include', 'bgfx/3rdparty/spirv-tools', 'bgfx/3rdparty/spirv-tools/include', 'bgfx/3rdparty/spirv-tools/include/generated', 'bgfx/3rdparty/spirv-tools/source'],
-                            cpp_args: '-Wno-switch')
+                            include_directories: ['bgfx/3rdparty/spirv-headers/include', 'bgfx/3rdparty/spirv-tools', 'bgfx/3rdparty/spirv-tools/include', 'bgfx/3rdparty/spirv-tools/include/generated', 'bgfx/3rdparty/spirv-tools/source'])
 spirv_tools_dep = declare_dependency(include_directories: ['bgfx/3rdparty/spirv-headers/include', 'bgfx/3rdparty/spirv-tools', 'bgfx/3rdparty/spirv-tools/include', 'bgfx/3rdparty/spirv-tools/include/generated', 'bgfx/3rdparty/spirv-tools/source'],
                                     link_with: spirv_tools)
 
