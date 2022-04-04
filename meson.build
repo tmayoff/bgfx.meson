@@ -281,8 +281,43 @@ if (build_machine.system() == 'windows')
 else
   glslang_sources += 'bgfx/3rdparty/glslang/glslang/OSDependent/Unix/ossource.cpp'
 endif
+
+glslang_cpp_args = []
+if (build_machine.system() == 'windows')
+    glslang_cpp_args += ['/wd4005',
+                        '/wd4065',
+                        '/wd4100',
+                        '/wd4127',
+                        '/wd4189',
+                        '/wd4244',
+                        '/wd4310',
+                        '/wd4389',
+                        '/wd4456',
+                        '/wd4457',
+                        '/wd4458',
+                        '/wd4702',
+                        '/wd4715',
+                        '/wd4838']
+else 
+glslang_cpp_args += ['-Wno-ignored-qualifiers',
+                    '-Wno-implicit-fallthrough',
+                    '-Wno-missing-field-initializers',
+                    '-Wno-reorder',
+                    '-Wno-return-type',
+                    '-Wno-shadow',
+                    '-Wno-sign-compare',
+                    '-Wno-switch',
+                    '-Wno-undef',
+                    '-Wno-unknown-pragmas',
+                    '-Wno-unused-function',
+                    '-Wno-unused-parameter',
+                    '-Wno-unused-variable',
+                    '-fno-strict-aliasing']
+endif
+
 glslang = static_library('glslang', glslang_sources,
-                        include_directories: ['bgfx/3rdparty', 'bgfx/3rdparty/spirv-tools/include', 'bgfx/3rdparty/spirv-tools/source', 'bgfx/3rdparty/glslang', 'bgfx/3rdparty/glslang/glslang/Include', 'bgfx/3rdparty/glslang/glslang/Public'])
+                        include_directories: ['bgfx/3rdparty', 'bgfx/3rdparty/spirv-tools/include', 'bgfx/3rdparty/spirv-tools/source', 'bgfx/3rdparty/glslang', 'bgfx/3rdparty/glslang/glslang/Include', 'bgfx/3rdparty/glslang/glslang/Public'],
+                        cpp_args: glslang_cpp_args)
 glslang_dep = declare_dependency(include_directories: ['bgfx/3rdparty/spirv-tools/include', 'bgfx/3rdparty/spirv-tools/source', 'bgfx/3rdparty/glslang', 'bgfx/3rdparty/glslang/glslang/Include', 'bgfx/3rdparty/glslang/glslang/Public'], link_with: glslang)
 
 meshoptimizer = static_library('meshoptimizer', 'bgfx/3rdparty/meshoptimizer/src/allocator.cpp',    
