@@ -30,7 +30,10 @@ endif
 
 # bx
 bx_sources = files('bx/src/amalgamated.cpp')
-bx_inc = include_directories('bx/include', 'bx/3rdparty', 'bx/include/compat/mingw')
+bx_inc = ['bx/include', 'bx/3rdparty']
+if (build_machine.system() == 'windows')
+    bx_inc += 'bx/include/compat/mingw'
+endif
 bx = static_library('bx', bx_sources, dependencies: dependencies, include_directories: bx_inc, 
                    cpp_args: ['-D__STDC_LIMIT_MACROS', '-D__STDC_FORMAT_MACROS', '-D__STDC_CONSTANT_MACROS'])
 bx_dep = declare_dependency(include_directories: bx_inc, link_with: bx)
