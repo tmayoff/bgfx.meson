@@ -13,7 +13,6 @@ if (build_machine.system() == 'linux')
     dependencies += dependency('X11')
     dependencies += dependency('glx')
 elif (build_machine.system() == 'windows')
-
 elif (build_machine.system() == 'darwin')
     # dependencies += cpp.find_library('Cocoa')
     # dependencies += cpp.find_library('Metal')
@@ -32,7 +31,7 @@ endif
 bx_sources = files('bx/src/amalgamated.cpp')
 bx_inc = ['bx/include', 'bx/3rdparty']
 if (build_machine.system() == 'windows')
-    bx_inc += 'bx/include/compat/mingw'
+    bx_inc += 'bx/include/compat/msvc'
 endif
 bx = static_library('bx', bx_sources, dependencies: dependencies, include_directories: bx_inc, 
                    cpp_args: ['-D__STDC_LIMIT_MACROS', '-D__STDC_FORMAT_MACROS', '-D__STDC_CONSTANT_MACROS'])
@@ -281,43 +280,8 @@ if (build_machine.system() == 'windows')
 else
   glslang_sources += 'bgfx/3rdparty/glslang/glslang/OSDependent/Unix/ossource.cpp'
 endif
-
-glslang_cpp_args = []
-if (build_machine.system() == 'windows')
-    glslang_cpp_args += ['/wd4005',
-                        '/wd4065',
-                        '/wd4100',
-                        '/wd4127',
-                        '/wd4189',
-                        '/wd4244',
-                        '/wd4310',
-                        '/wd4389',
-                        '/wd4456',
-                        '/wd4457',
-                        '/wd4458',
-                        '/wd4702',
-                        '/wd4715',
-                        '/wd4838']
-else 
-glslang_cpp_args += ['-Wno-ignored-qualifiers',
-                    '-Wno-implicit-fallthrough',
-                    '-Wno-missing-field-initializers',
-                    '-Wno-reorder',
-                    '-Wno-return-type',
-                    '-Wno-shadow',
-                    '-Wno-sign-compare',
-                    '-Wno-switch',
-                    '-Wno-undef',
-                    '-Wno-unknown-pragmas',
-                    '-Wno-unused-function',
-                    '-Wno-unused-parameter',
-                    '-Wno-unused-variable',
-                    '-fno-strict-aliasing']
-endif
-
-glslang = static_library('glslang', glslang_sources,
-                        include_directories: ['bgfx/3rdparty', 'bgfx/3rdparty/spirv-tools/include', 'bgfx/3rdparty/spirv-tools/source', 'bgfx/3rdparty/glslang', 'bgfx/3rdparty/glslang/glslang/Include', 'bgfx/3rdparty/glslang/glslang/Public'],
-                        cpp_args: glslang_cpp_args)
+glslang = static_library('glslang', 
+                        include_directories: ['bgfx/3rdparty', 'bgfx/3rdparty/spirv-tools/include', 'bgfx/3rdparty/spirv-tools/source', 'bgfx/3rdparty/glslang', 'bgfx/3rdparty/glslang/glslang/Include', 'bgfx/3rdparty/glslang/glslang/Public'])
 glslang_dep = declare_dependency(include_directories: ['bgfx/3rdparty/spirv-tools/include', 'bgfx/3rdparty/spirv-tools/source', 'bgfx/3rdparty/glslang', 'bgfx/3rdparty/glslang/glslang/Include', 'bgfx/3rdparty/glslang/glslang/Public'], link_with: glslang)
 
 meshoptimizer = static_library('meshoptimizer', 'bgfx/3rdparty/meshoptimizer/src/allocator.cpp',    
@@ -620,4 +584,59 @@ examples_common = static_library('examples-common', 'bgfx/examples/common/bgfx_u
                                 'bgfx/examples/common/nanovg/nanovg.cpp',
                                 'bgfx/examples/common/nanovg/nanovg_bgfx.cpp',
                                 'bgfx/examples/common/ps/particle_system.cpp',
+                                include_directories: 'bgfx/examples/common',
                                 dependencies: [bgfx_dep, bx_dep, bimg_dep, meshoptimizer_dep])
+
+
+example_sources = ['bgfx/examples/00-helloworld/helloworld.cpp',
+                  'bgfx/examples/01-cubes/cubes.cpp',
+                  'bgfx/examples/02-metaballs/metaballs.cpp',
+                  'bgfx/examples/03-raymarch/raymarch.cpp',
+                  'bgfx/examples/04-mesh/mesh.cpp',
+                  'bgfx/examples/05-instancing/instancing.cpp',
+                  'bgfx/examples/06-bump/bump.cpp',
+                  'bgfx/examples/07-callback/callback.cpp',
+                  'bgfx/examples/08-update/update.cpp',
+                  'bgfx/examples/09-hdr/hdr.cpp',
+                  'bgfx/examples/10-font/font.cpp',
+                  'bgfx/examples/11-fontsdf/fontsdf.cpp',
+                  'bgfx/examples/12-lod/lod.cpp',
+                  'bgfx/examples/13-stencil/stencil.cpp',
+                  'bgfx/examples/14-shadowvolumes/shadowvolumes.cpp',
+                  'bgfx/examples/15-shadowmaps-simple/shadowmaps_simple.cpp',
+                  'bgfx/examples/16-shadowmaps/shadowmaps.cpp',
+                  'bgfx/examples/17-drawstress/drawstress.cpp',
+                  'bgfx/examples/18-ibl/ibl.cpp',
+                  'bgfx/examples/19-oit/oit.cpp',
+                  'bgfx/examples/20-nanovg/nanovg.cpp',
+                  'bgfx/examples/21-deferred/deferred.cpp',
+                  'bgfx/examples/22-windows/windows.cpp',
+                  'bgfx/examples/23-vectordisplay/vectordisplay.cpp',
+                  'bgfx/examples/24-nbody/nbody.cpp',
+                  'bgfx/examples/25-c99/helloworld.c',
+                  'bgfx/examples/26-occlusion/occlusion.cpp',
+                  'bgfx/examples/27-terrain/terrain.cpp',
+                  'bgfx/examples/28-wireframe/wireframe.cpp',
+                  'bgfx/examples/29-debugdraw/debugdraw.cpp',
+                  'bgfx/examples/30-picking/picking.cpp',
+                  'bgfx/examples/31-rsm/reflectiveshadowmap.cpp',
+                  'bgfx/examples/32-particles/particles.cpp',
+                  'bgfx/examples/33-pom/pom.cpp',
+                  'bgfx/examples/34-mvs/mvs.cpp',
+                  'bgfx/examples/35-dynamic/dynamic.cpp',
+                  'bgfx/examples/36-sky/sky.cpp',
+                  'bgfx/examples/37-gpudrivenrendering/gpudrivenrendering.cpp',
+                  'bgfx/examples/38-bloom/bloom.cpp',
+                  'bgfx/examples/39-assao/assao.cpp',
+                  'bgfx/examples/40-svt/svt.cpp',
+                  'bgfx/examples/40-svt/vt.cpp',
+                  'bgfx/examples/41-tess/tess.cpp',
+                  'bgfx/examples/42-bunnylod/bunnylod.cpp',
+                  'bgfx/examples/42-bunnylod/progmesh.c',
+                  'bgfx/examples/43-denoise/denoise.cpp',
+                  'bgfx/examples/44-sss/screen_space_shadows.cpp',
+                  'bgfx/examples/45-bokeh/bokeh.cpp',
+                  'bgfx/examples/46-fsr/app.cpp',
+                  'bgfx/examples/46-fsr/fsr.cpp']
+
+examples = executable('examples', example_sources, dependencies: [bx_dep, bimg_dep, bgfx_dep], include_directories: 'bgfx/examples/common', link_with: examples_common)
