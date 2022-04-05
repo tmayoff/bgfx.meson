@@ -557,6 +557,7 @@ bgfx = library('bgfx', bgfx_sources, include_directories: bgfx_inc, dependencies
 bgfx_dep = declare_dependency(dependencies: dependencies + [bx_dep, bimg_dep], include_directories: bgfx_inc, link_with: bgfx)
 
 # bgfx tools
+if (get_option('build_tools'))
 geometryc = executable('geometryc', 'bgfx/tools/geometryc/geometryc.cpp',
                       dependencies: [bx_dep, bgfx_dep, meshoptimizer_dep])
 
@@ -572,8 +573,10 @@ shaderc = executable('shaderc', 'bgfx/tools/shaderc/shaderc_glsl.cpp',
                     cpp_args: ['-D_CRT_SECURE_NO_WARNINGS'])
 
 # texturev = executable('texturev', 'bgfx/tools/texturev/texturev.cpp')
+endif
 
 # examples common
+if (get_option('build_examples')) 
 examples_common = static_library('examples-common', 'bgfx/examples/common/bgfx_utils.cpp',
                                 'bgfx/examples/common/camera.cpp',
                                 'bgfx/examples/common/cube_atlas.cpp',
@@ -654,3 +657,4 @@ example_sources = ['bgfx/examples/00-helloworld/helloworld.cpp',
                   'bgfx/examples/46-fsr/fsr.cpp']
 
 examples = executable('examples', example_sources, dependencies: [bgfx_dep, dear_imgui_dep], include_directories: 'bgfx/examples/common', link_with: examples_common)
+endif
