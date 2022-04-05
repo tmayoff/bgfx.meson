@@ -71,6 +71,15 @@ astc_codec = static_library('astc-codec',
                            include_directories: ['bimg/3rdparty', 'bimg/3rdparty/astc-codec', 'bimg/3rdparty/astc-codec/include'])
 astc_codec_dep = declare_dependency(include_directories: ['bimg/3rdparty', 'bimg/3rdparty/astc-codec', 'bimg/3rdparty/astc-codec/include'], link_with: astc_codec)
 
+dear_imgui = static_library('dear-imgui', 'bgfx/3rdparty/dear-imgui/imgui.cpp',
+                            'bgfx/3rdparty/dear-imgui/imgui_demo.cpp',
+                            'bgfx/3rdparty/dear-imgui/imgui_draw.cpp',
+                            'bgfx/3rdparty/dear-imgui/imgui_tables.cpp',
+                            'bgfx/3rdparty/dear-imgui/imgui_widgets.cpp',
+                            dependencies: bx_dep,
+                            include_directories: 'bgfx/3rdparty')
+dear_imgui_dep = declare_dependency(dependencies: bx_dep, link_with: dear_imgui)
+
 iqa = static_library('iqa', 'bimg/3rdparty/iqa/source/convolve.c',
                     'bimg/3rdparty/iqa/source/decimate.c',
                     'bimg/3rdparty/iqa/source/math_utils.c',
@@ -280,9 +289,14 @@ if (build_machine.system() == 'windows')
 else
   glslang_sources += 'bgfx/3rdparty/glslang/glslang/OSDependent/Unix/ossource.cpp'
 endif
-glslang = static_library('glslang', 
+glslang = static_library('glslang', glslang_sources,
                         include_directories: ['bgfx/3rdparty', 'bgfx/3rdparty/spirv-tools/include', 'bgfx/3rdparty/spirv-tools/source', 'bgfx/3rdparty/glslang', 'bgfx/3rdparty/glslang/glslang/Include', 'bgfx/3rdparty/glslang/glslang/Public'])
-glslang_dep = declare_dependency(include_directories: ['bgfx/3rdparty/spirv-tools/include', 'bgfx/3rdparty/spirv-tools/source', 'bgfx/3rdparty/glslang', 'bgfx/3rdparty/glslang/glslang/Include', 'bgfx/3rdparty/glslang/glslang/Public'], link_with: glslang)
+glslang_dep = declare_dependency(include_directories: ['bgfx/3rdparty/spirv-tools/include', 
+                                'bgfx/3rdparty/spirv-tools/source', 
+                                'bgfx/3rdparty/glslang', 
+                                'bgfx/3rdparty/glslang/glslang/Include',
+                                 'bgfx/3rdparty/glslang/glslang/Public'],
+                                link_with: glslang)
 
 meshoptimizer = static_library('meshoptimizer', 'bgfx/3rdparty/meshoptimizer/src/allocator.cpp',    
                               'bgfx/3rdparty/meshoptimizer/src/clusterizer.cpp',  
@@ -539,8 +553,8 @@ webgpu_dep = declare_dependency(include_directories: 'bgfx/3rdparty/webgpu/inclu
 bgfx_sources = files('bgfx/src/amalgamated.cpp')
 bgfx_inc = include_directories('bgfx/include', 'bgfx/3rdparty', 'bgfx/3rdparty/dxsdk', 'bgfx/3rdparty/khronos')
 
-bgfx = library('bgfx', bgfx_sources, include_directories: bgfx_inc, dependencies: dependencies + [bx_dep, bimg_dep])
-bgfx_dep = declare_dependency(include_directories: bgfx_inc, link_with: bgfx)
+bgfx = library('bgfx', bgfx_sources, include_directories: bgfx_inc, dependencies: dependencies + [bx_dep, bimg_dep, webgpu_dep])
+bgfx_dep = declare_dependency(dependencies: dependencies + [bx_dep, bimg_dep], include_directories: bgfx_inc, link_with: bgfx)
 
 # bgfx tools
 geometryc = executable('geometryc', 'bgfx/tools/geometryc/geometryc.cpp',
@@ -639,4 +653,4 @@ example_sources = ['bgfx/examples/00-helloworld/helloworld.cpp',
                   'bgfx/examples/46-fsr/app.cpp',
                   'bgfx/examples/46-fsr/fsr.cpp']
 
-examples = executable('examples', example_sources, dependencies: [bx_dep, bimg_dep, bgfx_dep], include_directories: 'bgfx/examples/common', link_with: examples_common)
+examples = executable('examples', example_sources, dependencies: [bgfx_dep, dear_imgui_dep], include_directories: 'bgfx/examples/common', link_with: examples_common)
