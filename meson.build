@@ -91,6 +91,15 @@ dear_imgui = static_library('dear-imgui', 'bgfx/3rdparty/dear-imgui/imgui.cpp',
                             include_directories: 'bgfx/3rdparty')
 dear_imgui_dep = declare_dependency(dependencies: bx_dep, link_with: dear_imgui)
 
+edtaa3 = static_library('edtaa3', 'bimg/3rdparty/edtaa3/edtaa3func.cpp', include_directories: 'bimg/3rdparty')
+edtaa3_dep = declare_dependency(include_directories: 'bimg/3rdparty', link_with: edtaa3)
+
+etc1 = static_library('etc1', 'bimg/3rdparty/etc1/etc1.cpp', include_directories: 'bimg/3rdparty')
+etc1_dep = declare_dependency(include_directories: 'bimg/3rdparty', link_with: etc1)
+
+etc2 = static_library('etc2', 'bimg/3rdparty/etc2/ProcessRGB.cpp', 'bimg/3rdparty/etc2/Tables.cpp', dependencies: bx_dep, include_directories: 'bimg/3rdparty')
+etc2_dep = declare_dependency(dependencies: bx_dep, include_directories: 'bimg/3rdparty', link_with: etc2)
+
 iqa = static_library('iqa', 'bimg/3rdparty/iqa/source/convolve.c',
                     'bimg/3rdparty/iqa/source/decimate.c',
                     'bimg/3rdparty/iqa/source/math_utils.c',
@@ -104,6 +113,32 @@ iqa_dep = declare_dependency(include_directories: 'bimg/3rdparty/iqa/include', l
 libsquish = static_library('libsquish', 'bimg/3rdparty/libsquish/alpha.cpp')
 libsquish_dep = declare_dependency(link_with: libsquish)
 
+nvtt = static_library('nvtt', 'bimg/3rdparty/nvtt/bc6h/zoh.cpp',
+                      'bimg/3rdparty/nvtt/bc6h/zoh_utils.cpp',
+                      'bimg/3rdparty/nvtt/bc6h/zohone.cpp',
+                      'bimg/3rdparty/nvtt/bc6h/zohtwo.cpp',
+                      'bimg/3rdparty/nvtt/bc7/avpcl.cpp',
+                      'bimg/3rdparty/nvtt/bc7/avpcl_mode0.cpp',
+                      'bimg/3rdparty/nvtt/bc7/avpcl_mode1.cpp',
+                      'bimg/3rdparty/nvtt/bc7/avpcl_mode2.cpp',
+                      'bimg/3rdparty/nvtt/bc7/avpcl_mode3.cpp',
+                      'bimg/3rdparty/nvtt/bc7/avpcl_mode4.cpp',
+                      'bimg/3rdparty/nvtt/bc7/avpcl_mode5.cpp',
+                      'bimg/3rdparty/nvtt/bc7/avpcl_mode6.cpp',
+                      'bimg/3rdparty/nvtt/bc7/avpcl_mode7.cpp',
+                      'bimg/3rdparty/nvtt/bc7/avpcl_utils.cpp',
+                      'bimg/3rdparty/nvtt/nvmath/fitting.cpp',
+                      'bimg/3rdparty/nvtt/nvtt.cpp', 
+                      dependencies: bx_dep, include_directories: ['bimg/3rdparty', 'bimg/3rdparty/nvtt'])
+nvtt_dep = declare_dependency(dependencies: bx_dep, include_directories:  ['bimg/3rdparty', 'bimg/3rdparty/nvtt'], link_with: nvtt)
+
+pvrtc = static_library('pvrtc', 'bimg/3rdparty/pvrtc/BitScale.cpp',
+                      'bimg/3rdparty/pvrtc/MortonTable.cpp',
+                      'bimg/3rdparty/pvrtc/PvrTcDecoder.cpp',
+                      'bimg/3rdparty/pvrtc/PvrTcEncoder.cpp',
+                      'bimg/3rdparty/pvrtc/PvrTcPacket.cpp', include_directories: 'bimg/3rdparty')
+pvrtc_dep = declare_dependency(include_directories: 'bimg/3rdparty', link_with: pvrtc)
+
 tinyexr = static_library('tinyexr', 'bimg/3rdparty/tinyexr/deps/miniz/miniz.c',
                         include_directories: ['bimg/3rdparty/tinyexr', 'bimg/3rdparty/tinyexr/deps/miniz'])
 tinyexr_dep = declare_dependency(include_directories: ['bimg/3rdparty/tinyexr', 'bimg/3rdparty/tinyexr/deps/miniz'], link_with: tinyexr)
@@ -116,7 +151,7 @@ bimg_sources = files('bimg/src/image_cubemap_filter.cpp',
                     'bimg/src/image.cpp')
 bimg_inc = include_directories('bimg/include')
 bimg = static_library('bimg', bimg_sources,
-                    dependencies: [bx_dep, astc_dep, astc_codec_dep, iqa_dep, libsquish_dep, tinyexr_dep], 
+                    dependencies: [bx_dep, astc_dep, astc_codec_dep, edtaa3_dep, etc1_dep, etc2_dep, iqa_dep, libsquish_dep, pvrtc_dep, tinyexr_dep],
                     include_directories: bimg_inc)
 bimg_dep = declare_dependency(dependencies: bx_dep, include_directories: bimg_inc, link_with: bimg)
 
