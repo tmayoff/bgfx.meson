@@ -9,18 +9,7 @@ cpp = meson.get_compiler('cpp')
 linux = build_machine.system() == 'linux'
 windows = build_machine.system() == 'windows'
 macos = build_machine.system() == 'darwin'
-#     # dependencies += cpp.find_library('Cocoa')
-#     # dependencies += cpp.find_library('Metal')
-#     # dependencies += cpp.find_library('QuartzCore')
-#     # dependencies += cpp.find_library('IOKit')
-#     # dependencies += cpp.find_library('CoreFoundation')
-#     # dependencies += dependency('OpenGLES')
-#     dependencies += dependency('Metal')
-#     dependencies += dependency('IOKit')
-#     dependencies += dependency('QuartzCore')
-#     dependencies += dependency('Foundation')
-#     dependencies += dependency('CoreFoundation')
-# endif
+msvc = meson.get_compiler('cpp').get_id() == 'msvc'
 
 # bx
 bx_sources = []
@@ -31,8 +20,10 @@ else
 endif
 
 bx_inc = ['bx/include', 'bx/3rdparty']
-if (windows)
+if (msvc)
   bx_inc += 'bx/include/compat/msvc'
+elif (windows)
+  bx_inc += 'bx/include/compat/mingw'
 elif (macos)
   bx_inc += 'bx/include/compat/osx'
 endif
@@ -156,13 +147,17 @@ bimg = static_library('bimg', bimg_sources,
 bimg_dep = declare_dependency(dependencies: bx_dep, include_directories: bimg_inc, link_with: bimg)
 
 #bgfx 3rdparty
+fcpp_args = ['-DNINCLUDE=64', '-DNWORK=65536', '-DNBUFF=65536', '-DOLD_PREPROCESSOR=0']
+if (msvc)
+  fcpp_args += '/W0'
+endif
 fcpp = static_library('fcpp', 'bgfx/3rdparty/fcpp/cpp1.c',
                      'bgfx/3rdparty/fcpp/cpp2.c',
                      'bgfx/3rdparty/fcpp/cpp3.c',
                      'bgfx/3rdparty/fcpp/cpp4.c',
                      'bgfx/3rdparty/fcpp/cpp5.c',
                      'bgfx/3rdparty/fcpp/cpp6.c',
-                     include_directories: 'bgfx/3rdparty/fcpp/')
+                     include_directories: 'bgfx/3rdparty/fcpp/', cpp_args: fcpp_args)
 fcpp_dep = declare_dependency(include_directories: 'bgfx/3rdparty/fcpp/', link_with: fcpp)
 
 glsl_optimizer_inc = include_directories('bgfx/3rdparty/glsl-optimizer/include',
@@ -330,7 +325,7 @@ glslang_sources = files('bgfx/3rdparty/glslang/glslang/GenericCodeGen/CodeGen.cp
                         'bgfx/3rdparty/glslang/SPIRV/SPVRemapper.cpp',
                         'bgfx/3rdparty/glslang/SPIRV/SpvTools.cpp',
                         'bgfx/3rdparty/glslang/OGLCompilersDLL/InitializeDll.cpp')
-if (build_machine.system() == 'windows')
+if (windows)
   glslang_sources += 'bgfx/3rdparty/glslang/glslang/OSDependent/Windows/ossource.cpp'
 else
   glslang_sources += 'bgfx/3rdparty/glslang/glslang/OSDependent/Unix/ossource.cpp'
@@ -605,7 +600,12 @@ if (get_option('config_renderer_webgpu'))
   bgfx_dependencies += webgpu_dep
 endif
 
-bgfx = library('bgfx', bgfx_sources, include_directories: bgfx_inc, dependencies: bgfx_dependencies)
+bgfx_args = []
+if (msvc)
+  bgfx_args += '-D_CRT_SECURE_NO_WARNINGS'
+endif
+
+bgfx = library('bgfx', bgfx_sources, include_directories: bgfx_inc, dependencies: bgfx_dependencies, cpp_args: bgfx_args)
 bgfx_dep = declare_dependency(dependencies: [bx_dep, bimg_dep], include_directories: bgfx_inc, link_with: bgfx)
 
 # bgfx tools
