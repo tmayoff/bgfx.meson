@@ -1,4 +1,4 @@
-project('bgfx', ['c', 'cpp'], version: '1.115', default_options: ['cpp_std=c++17'])
+project('bgfx', ['c', 'cpp'], version: '1.115', default_options: ['cpp_std=c++14'])
 
 add_project_arguments('-DBX_CONFIG_DEBUG', language: 'cpp')
 add_project_arguments('-DENABLE_OPT', language: 'cpp')
@@ -6,34 +6,45 @@ add_project_arguments('-DENABLE_HLSL', language: 'cpp')
 
 cpp = meson.get_compiler('cpp')
 
-dependencies = []
-dependencies += dependency('threads', required: true)
-if (build_machine.system() == 'linux')
-    dependencies += cpp.find_library('dl')
-    dependencies += dependency('X11')
-    dependencies += dependency('glx')
-elif (build_machine.system() == 'windows')
-elif (build_machine.system() == 'darwin')
-    # dependencies += cpp.find_library('Cocoa')
-    # dependencies += cpp.find_library('Metal')
-    # dependencies += cpp.find_library('QuartzCore')
-    # dependencies += cpp.find_library('IOKit')
-    # dependencies += cpp.find_library('CoreFoundation')
-    # dependencies += dependency('OpenGLES')
-    dependencies += dependency('Metal')
-    dependencies += dependency('IOKit')
-    dependencies += dependency('QuartzCore')
-    dependencies += dependency('Foundation')
-    dependencies += dependency('CoreFoundation')
-endif
+linux = build_machine.system() == 'linux'
+windows = build_machine.system() == 'windows'
+macos = build_machine.system() == 'darwin'
+#     # dependencies += cpp.find_library('Cocoa')
+#     # dependencies += cpp.find_library('Metal')
+#     # dependencies += cpp.find_library('QuartzCore')
+#     # dependencies += cpp.find_library('IOKit')
+#     # dependencies += cpp.find_library('CoreFoundation')
+#     # dependencies += dependency('OpenGLES')
+#     dependencies += dependency('Metal')
+#     dependencies += dependency('IOKit')
+#     dependencies += dependency('QuartzCore')
+#     dependencies += dependency('Foundation')
+#     dependencies += dependency('CoreFoundation')
+# endif
 
 # bx
-bx_sources = files('bx/src/amalgamated.cpp')
-bx_inc = ['bx/include', 'bx/3rdparty']
-if (build_machine.system() == 'windows')
-    bx_inc += 'bx/include/compat/msvc'
+bx_sources = []
+if (get_option('bx_build_amalgamated'))
+  bx_sources += files()
+else
+  bx_sources += files('bx/src/amalgamated.cpp')
 endif
-bx = static_library('bx', bx_sources, dependencies: dependencies, include_directories: bx_inc, 
+
+bx_inc = ['bx/include', 'bx/3rdparty']
+if (windows)
+  bx_inc += 'bx/include/compat/msvc'
+elif (macos)
+  bx_inc += 'bx/include/compat/osx'
+endif
+
+bx_dependencies = []
+if (linux)
+  bx_dependencies += [cpp.find_library('dl'), dependency('threads'), dependency('X11'), dependency('glx')]
+elif (macos)
+  bx_dependencies += [dependency('Foundation')]
+endif
+
+bx = static_library('bx', bx_sources, dependencies: bx_dependencies, include_directories: bx_inc, 
                    cpp_args: ['-D__STDC_LIMIT_MACROS', '-D__STDC_FORMAT_MACROS', '-D__STDC_CONSTANT_MACROS'])
 bx_dep = declare_dependency(include_directories: bx_inc, link_with: bx)
 
@@ -103,11 +114,11 @@ bimg_sources = files('bimg/src/image_cubemap_filter.cpp',
                     'bimg/src/image_encode.cpp',
                     'bimg/src/image_gnf.cpp',
                     'bimg/src/image.cpp')
-bimg_inc = include_directories('bimg/include', 'bimg/3rdparty')
-bimg = static_library('bimg', bimg_sources, 
+bimg_inc = include_directories('bimg/include')
+bimg = static_library('bimg', bimg_sources,
                     dependencies: [bx_dep, astc_dep, astc_codec_dep, iqa_dep, libsquish_dep, tinyexr_dep], 
                     include_directories: bimg_inc)
-bimg_dep = declare_dependency(include_directories: bimg_inc, link_with: bimg)
+bimg_dep = declare_dependency(dependencies: bx_dep, include_directories: bimg_inc, link_with: bimg)
 
 #bgfx 3rdparty
 fcpp = static_library('fcpp', 'bgfx/3rdparty/fcpp/cpp1.c',
@@ -553,8 +564,14 @@ webgpu_dep = declare_dependency(include_directories: 'bgfx/3rdparty/webgpu/inclu
 bgfx_sources = files('bgfx/src/amalgamated.cpp')
 bgfx_inc = include_directories('bgfx/include', 'bgfx/3rdparty', 'bgfx/3rdparty/dxsdk', 'bgfx/3rdparty/khronos')
 
-bgfx = library('bgfx', bgfx_sources, include_directories: bgfx_inc, dependencies: dependencies + [bx_dep, bimg_dep, webgpu_dep])
-bgfx_dep = declare_dependency(dependencies: dependencies + [bx_dep, bimg_dep], include_directories: bgfx_inc, link_with: bgfx)
+bgfx_dependencies = [bx_dep, bimg_dep]
+
+if (get_option('config_renderer_webgpu'))
+  bgfx_dependencies += webgpu_dep
+endif
+
+bgfx = library('bgfx', bgfx_sources, include_directories: bgfx_inc, dependencies: bgfx_dependencies)
+bgfx_dep = declare_dependency(dependencies: [bx_dep, bimg_dep], include_directories: bgfx_inc, link_with: bgfx)
 
 # bgfx tools
 if (get_option('build_tools'))

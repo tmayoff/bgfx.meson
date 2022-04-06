@@ -1,2 +1,5 @@
+option('bx_build_amalgamated', type: 'boolean', value: false)
+option('bgfx_build_amalgamated', type: 'boolean', value: false)
 option('build_examples', type: 'boolean', value: false)
 option('build_tools', type: 'boolean', value: true)
+option('config_renderer_webgpu', type: 'boolean', value: true)
